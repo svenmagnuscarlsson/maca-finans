@@ -5,7 +5,8 @@ import { API_CONFIG } from './config.js';
  */
 export const FinanceAPI = {
     async fetchQuote(symbol) {
-        const url = `https://${API_CONFIG.HOST}/api/v1/markets/quotes?ticker=${symbol}`;
+        // Uppdaterad endpoint: singular 'quote' och parametern 'symbol'
+        const url = `https://${API_CONFIG.HOST}/api/v1/markets/quote?symbol=${symbol}`;
         const options = {
             method: 'GET',
             headers: {
@@ -25,20 +26,20 @@ export const FinanceAPI = {
             
             const data = await response.json();
             
-            // yahoo-finance15 returnerar ofta data i body-fältet
-            const result = data.body ? data.body[0] : null;
+            // yahoo-finance15 returnerar data antingen direkt eller i body
+            // Vi försöker hitta det mest relevanta objektet
+            let result = data.body ? (Array.isArray(data.body) ? data.body[0] : data.body) : data;
             
-            if (!result) return null;
+            if (!result || (!result.symbol && !result.price)) return null;
 
-            // Mappa om data till ett enhetligt format för UI:t
             return {
-                symbol: result.symbol,
-                shortName: result.name || result.symbol,
-                regularMarketPrice: result.price || 0,
-                regularMarketChangePercent: result.change_percent || 0,
-                regularMarketChange: result.change || 0,
+                symbol: result.symbol || symbol,
+                shortName: result.name || result.shortName || result.symbol || symbol,
+                regularMarketPrice: result.price || result.regularMarketPrice || 0,
+                regularMarketChangePercent: result.change_percent || result.regularMarketChangePercent || 0,
+                regularMarketChange: result.change || result.regularMarketChange || 0,
                 currency: result.currency || 'USD',
-                fullExchangeName: result.exchange || 'Market'
+                fullExchangeName: result.exchange || result.fullExchangeName || 'Market'
             };
         } catch (error) {
             console.error('Error fetching quote:', error);
@@ -74,7 +75,8 @@ export const FinanceAPI = {
     },
 
     async fetchRSI(symbol) {
-        const url = `https://${API_CONFIG.HOST}/api/v1/markets/indicators/rsi?symbol=${symbol}&interval=1h&series_type=close&time_period=14&limit=1`;
+        // Synkat med användarens fungerande cURL: time_period=50, limit=50
+        const url = `https://${API_CONFIG.HOST}/api/v1/markets/indicators/rsi?symbol=${symbol}&interval=1h&series_type=close&time_period=50&limit=50`;
         const options = {
             method: 'GET',
             headers: {
@@ -89,8 +91,9 @@ export const FinanceAPI = {
             if (!response.ok) return null;
             const data = await response.json();
             
-            // Hämta det senaste RSI-värdet
-            const result = data.body ? data.body[0] : null;
+            // Hämta det senaste RSI-värdet (index 0 i body om det är en array)
+            const body = data.body || [];
+            const result = Array.isArray(body) ? body[0] : body;
             return result ? result.rsi : null;
         } catch (error) {
             console.error('Error fetching RSI:', error);
