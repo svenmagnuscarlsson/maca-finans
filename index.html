@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanceTracker | Din Marknadskoll</title>
+    <meta name="description" content="Lättviktig finansapp för realtidsdata från Yahoo Finance.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <span class="icon">📈</span>
+                <h1>Finance<span class="accent">Tracker</span></h1>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Sök aktie, t.ex. AAPL..." autocomplete="off">
+                <button id="searchBtn">Sök</button>
+                <div id="searchSuggestions" class="suggestions-container"></div>
+            </div>
+        </header>
+
+        <main>
+            <section id="stockDisplay" class="stock-display">
+                <!-- Aktiv aktie visas här -->
+                <div class="empty-state">
+                    <p>Sök efter en aktie för att se realtidsdata</p>
+                </div>
+            </section>
+
+            <section id="watchlist" class="watchlist-section">
+                <h2>Din Watchlist</h2>
+                <div id="watchlistGrid" class="watchlist-grid">
+                    <!-- Bevakade aktier visas här -->
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 FinanceTracker. Data via Yahoo Finance API.</p>
+        </footer>
+    </div>
+
+    <!-- Background Decoration -->
+    <div class="bg-blur"></div>
+    <div class="bg-blur second"></div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

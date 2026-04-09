@@ -1,0 +1,235 @@
+:root {
+    --bg-dark: #0f172a;
+    --bg-card: rgba(30, 41, 59, 0.7);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent: #38bdf8;
+    --success: #10b981;
+    --danger: #f43f5e;
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-glow: rgba(56, 189, 248, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Background Effects */
+.bg-blur {
+    position: fixed;
+    top: -10%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, transparent 70%);
+    z-index: -1;
+    filter: blur(80px);
+}
+
+.bg-blur.second {
+    top: 60%;
+    left: -10%;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+}
+
+.app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Header & Search */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3rem;
+    gap: 2rem;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.logo h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+}
+
+.accent {
+    color: var(--accent);
+}
+
+.search-bar {
+    position: relative;
+    flex: 1;
+    max-width: 500px;
+    display: flex;
+    gap: 0.5rem;
+}
+
+input[type="text"] {
+    flex: 1;
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(12px);
+}
+
+input[type="text"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--glass-glow);
+}
+
+button {
+    background: var(--accent);
+    color: var(--bg-dark);
+    border: none;
+    padding: 0 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+button:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* Specific Stock Display */
+.stock-display {
+    margin-bottom: 4rem;
+}
+
+.stock-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    padding: 2.5rem;
+    border-radius: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stock-info h2 {
+    font-size: 3rem;
+    margin-bottom: 0.25rem;
+}
+
+.stock-info .symbol {
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 1.25rem;
+}
+
+.stock-price {
+    text-align: right;
+}
+
+.price {
+    font-size: 3.5rem;
+    font-weight: 700;
+    display: block;
+}
+
+.change {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.change.up { color: var(--success); }
+.change.down { color: var(--danger); }
+
+/* Watchlist */
+.watchlist-section h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.watchlist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.mini-card {
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    padding: 1.5rem;
+    border-radius: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.mini-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255,255,255,0.2);
+    background: rgba(45, 55, 72, 0.8);
+}
+
+/* Utils */
+.empty-state {
+    text-align: center;
+    padding: 4rem;
+    border: 2px dashed var(--glass-border);
+    border-radius: 24px;
+    color: var(--text-secondary);
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .search-bar {
+        width: 100%;
+        max-width: none;
+    }
+    .stock-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 2rem;
+    }
+    .stock-price {
+        text-align: center;
+    }
+}
