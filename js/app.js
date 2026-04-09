@@ -61,9 +61,14 @@ class FinanceTracker {
 
         UI.showLoading();
 
-        const data = await FinanceAPI.fetchQuote(symbol);
+        // Hämta både kurs och RSI parallellt
+        const [data, rsi] = await Promise.all([
+            FinanceAPI.fetchQuote(symbol),
+            FinanceAPI.fetchRSI(symbol)
+        ]);
+
         this.currentStock = data;
-        UI.renderStockCard(data);
+        UI.renderStockCard(data, rsi);
     }
 
     addToWatchlist() {

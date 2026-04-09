@@ -2,7 +2,7 @@
  * UI Manipulation Module
  */
 export const UI = {
-    renderStockCard(data) {
+    renderStockCard(data, rsi) {
         const container = document.getElementById('stockDisplay');
         if (!data) {
             container.innerHTML = `<div class="empty-state"><p>Kunde inte hitta aktien. Försök igen.</p></div>`;
@@ -12,6 +12,8 @@ export const UI = {
         const isUp = data.regularMarketChange >= 0;
         const changeClass = isUp ? 'up' : 'down';
         const changeSymbol = isUp ? '+' : '';
+        const rsiValue = rsi ? rsi.toFixed(2) : 'N/A';
+        const rsiColor = rsi > 70 ? 'var(--danger)' : (rsi < 30 ? 'var(--success)' : 'var(--accent)');
 
         container.innerHTML = `
             <div class="stock-card">
@@ -19,14 +21,18 @@ export const UI = {
                     <span class="symbol">${data.symbol}</span>
                     <h2>${data.shortName || data.longName || data.symbol}</h2>
                     <p class="market">${data.fullExchangeName}</p>
+                    <div class="indicator-badge" style="margin-top: 1rem;">
+                        <span class="label">RSI (14h):</span>
+                        <span class="value" style="color: ${rsiColor}; font-weight: 700;">${rsiValue}</span>
+                    </div>
                 </div>
                 <div class="stock-price">
                     <span class="price">${data.regularMarketPrice.toFixed(2)} ${data.currency}</span>
                     <span class="change ${changeClass}">
                         ${changeSymbol}${data.regularMarketChange.toFixed(2)} (${data.regularMarketChangePercent.toFixed(2)}%)
                     </span>
-                    <div class="actions" style="margin-top: 1rem;">
-                        <button id="addToWatchlist" class="secondary-btn">Lägg till i Watchlist</button>
+                    <div class="actions" style="margin-top: 1.5rem;">
+                        <button id="addToWatchlist" class="secondary-btn">Bevaka Aktie</button>
                     </div>
                 </div>
             </div>

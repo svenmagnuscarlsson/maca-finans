@@ -71,5 +71,30 @@ export const FinanceAPI = {
             console.error('Error searching symbol:', error);
             return [];
         }
+    },
+
+    async fetchRSI(symbol) {
+        const url = `https://${API_CONFIG.HOST}/api/v1/markets/indicators/rsi?symbol=${symbol}&interval=1h&series_type=close&time_period=14&limit=1`;
+        const options = {
+            method: 'GET',
+            headers: {
+                'X-RapidAPI-Key': API_CONFIG.KEY,
+                'X-RapidAPI-Host': API_CONFIG.HOST,
+                'Content-Type': 'application/json'
+            }
+        };
+
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) return null;
+            const data = await response.json();
+            
+            // Hämta det senaste RSI-värdet
+            const result = data.body ? data.body[0] : null;
+            return result ? result.rsi : null;
+        } catch (error) {
+            console.error('Error fetching RSI:', error);
+            return null;
+        }
     }
 };
