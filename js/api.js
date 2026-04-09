@@ -1,12 +1,24 @@
 import { API_CONFIG } from './config.js';
 
+// Använd en CORS-proxy för att undvika problem på GitHub Pages
+const PROXY_URL = 'https://corsproxy.io/?';
+
 /**
- * Yahoo Finance API Module (Optimized for yahoo-finance15)
+ * Yahoo Finance API Module (Optimized for yahoo-finance15 with CORS Proxy support)
  */
 export const FinanceAPI = {
-    async fetchQuote(symbol) {
-        // Uppdaterad endpoint: singular 'quote' och parametern 'symbol'
-        const url = `https://${API_CONFIG.HOST}/api/v1/markets/quote?symbol=${symbol}`;
+    /**
+     * Privat hjälpmetod för att hantera API-anrop med proxy
+     */
+    async _fetch(endpoint, params = {}) {
+        const queryParams = new URLSearchParams(params).toString();
+        const targetUrl = `https://${API_CONFIG.HOST}/api/v1/${endpoint}?${queryParams}`;
+        
+        // Vi använder proxyn för ALLA anrop när vi kör på en domän (t.ex. GitHub Pages)
+        const url = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? targetUrl 
+            : PROXY_URL + encodeURIComponent(targetUrl);
+
         const options = {
             method: 'GET',
             headers: {
@@ -16,18 +28,23 @@ export const FinanceAPI = {
             }
         };
 
+        const response = await fetch(url, options);
+        
+        if (response.status === 403) {
+            throw new Error('403 Forbidden: Kontrollera din prenumeration på RapidAPI.');
+        }
+        if (!response.ok) throw new Error(`API error: ${response.status}`);
+        
+        return await response.json();
+    },
+
+    async fetchQuote(symbol) {
         try {
-            const response = await fetch(url, options);
+            // Vi testar 'markets/quote' (plural markets, singular quote) 
+            // men genom proxyn spelar redirects ingen roll.
+            const data = await this._fetch('markets/quote', { symbol });
             
-            if (response.status === 403) {
-                throw new Error('403 Forbidden: Kontrollera din prenumeration på RapidAPI.');
-            }
-            if (!response.ok) throw new Error(`API error: ${response.status}`);
-            
-            const data = await response.json();
-            
-            // yahoo-finance15 returnerar data antingen direkt eller i body
-            // Vi försöker hitta det mest relevanta objektet
+            // Hantera olika svarstyper från yahoo-finance15
             let result = data.body ? (Array.isArray(data.body) ? data.body[0] : data.body) : data;
             
             if (!result || (!result.symbol && !result.price)) return null;
@@ -48,22 +65,9 @@ export const FinanceAPI = {
     },
 
     async searchSymbol(query) {
-        const url = `https://${API_CONFIG.HOST}/api/v1/markets/search?search=${query}`;
-        const options = {
-            method: 'GET',
-            headers: {
-                'X-RapidAPI-Key': API_CONFIG.KEY,
-                'X-RapidAPI-Host': API_CONFIG.HOST,
-                'Content-Type': 'application/json'
-            }
-        };
-
         try {
-            const response = await fetch(url, options);
-            if (!response.ok) throw new Error('Search failed');
-            const data = await response.json();
+            const data = await this._fetch('markets/search', { search: query });
             
-            // Mappa sökresultat
             return (data.body || []).map(item => ({
                 symbol: item.symbol,
                 name: item.name
@@ -75,23 +79,15 @@ export const FinanceAPI = {
     },
 
     async fetchRSI(symbol) {
-        // Synkat med användarens fungerande cURL: time_period=50, limit=50
-        const url = `https://${API_CONFIG.HOST}/api/v1/markets/indicators/rsi?symbol=${symbol}&interval=1h&series_type=close&time_period=50&limit=50`;
-        const options = {
-            method: 'GET',
-            headers: {
-                'X-RapidAPI-Key': API_CONFIG.KEY,
-                'X-RapidAPI-Host': API_CONFIG.HOST,
-                'Content-Type': 'application/json'
-            }
-        };
-
         try {
-            const response = await fetch(url, options);
-            if (!response.ok) return null;
-            const data = await response.json();
+            const data = await this._fetch('markets/indicators/rsi', {
+                symbol: symbol,
+                interval: '1h',
+                series_type: 'close',
+                time_period: 50,
+                limit: 50
+            });
             
-            // Hämta det senaste RSI-värdet (index 0 i body om det är en array)
             const body = data.body || [];
             const result = Array.isArray(body) ? body[0] : body;
             return result ? result.rsi : null;
@@ -101,3 +97,4 @@ export const FinanceAPI = {
         }
     }
 };
+
